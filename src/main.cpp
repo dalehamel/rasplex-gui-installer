@@ -27,8 +27,11 @@
 #include <QApplication>
 #include <cstdio>
 #include <cstdlib>
-#include <windows.h>
-#include <winioctl.h>
+
+#ifdef Q_WS_WIN
+    #include <windows.h>
+    #include <winioctl.h>
+#endif
 #include "disk.h"
 #include "mainwindow.h"
 

@@ -31,8 +31,10 @@
 #include <QClipboard>
 #include <cstdio>
 #include <cstdlib>
-#include <windows.h>
-#include <winioctl.h>
+#ifdef Q_WS_WIN
+    #include <windows.h>
+    #include <winioctl.h>
+#endif
 #include "ui_mainwindow.h"
 #include "disk.h"
 
@@ -44,7 +46,9 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		~MainWindow();
 		void closeEvent(QCloseEvent *event);
         enum Status {STATUS_IDLE=0, STATUS_READING, STATUS_WRITING, STATUS_EXIT, STATUS_CANCELED};
-		bool winEvent ( MSG * msg, long * result );
+        #ifdef Q_WS_WIN
+            bool winEvent ( MSG * msg, long * result );
+        #endif
 	protected slots:
 		void on_tbBrowse_clicked();
 		void on_bCancel_clicked();
@@ -59,9 +63,11 @@ class MainWindow : public QMainWindow, public Ui::MainWindow
 		void getLogicalDrives();
 		void setReadWriteButtonState();
 
-		HANDLE hVolume;
-		HANDLE hFile;
-		HANDLE hRawDisk;
+        #ifdef Q_WS_WIN
+            HANDLE hVolume;
+            HANDLE hFile;
+            HANDLE hRawDisk;
+        #endif
 		unsigned long long sectorsize;
 		int status;
 		char *sectorData;

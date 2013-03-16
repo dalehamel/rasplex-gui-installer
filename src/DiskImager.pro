@@ -1,5 +1,5 @@
 TEMPLATE = app
-TARGET = ../../Win32DiskImager
+TARGET = RasplexInstaller
 DEPENDPATH += .
 INCLUDEPATH += .
 CONFIG += release
@@ -8,9 +8,9 @@ DEFINES -= UNICODE
 VERSION = 0.7
 VERSTR = '\\"$${VERSION}\\"'
 DEFINES += VER=\"$${VERSTR}\"
-QMAKE_TARGET_PRODUCT = "Win32 Image Writer"
-QMAKE_TARGET_DESCRIPTION = "Image Writer for Windows to write USB and SD images"
-QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2009-2013 Windows ImageWriter Team"
+QMAKE_TARGET_PRODUCT = "Installer for RasPlex"
+QMAKE_TARGET_DESCRIPTION = "Installer for RasPlex Plex client for Raspberry Pi, used to write SD cards from Sourceforge Downloads"
+QMAKE_TARGET_COPYRIGHT = "Copyright (C) 2009-2013 Rasplex"
 
 # Input
 HEADERS += disk.h mainwindow.h droppablelineedit.h

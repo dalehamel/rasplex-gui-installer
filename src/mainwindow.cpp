@@ -30,10 +30,16 @@
 #include <QDirIterator>
 #include <cstdio>
 #include <cstdlib>
-#include <windows.h>
-#include <winioctl.h>
-#include <dbt.h>
-#include <shlobj.h>
+
+#ifdef Q_WS_WIN
+    #include <windows.h>
+    #include <winioctl.h>
+    #include <dbt.h>
+    #include <shlobj.h>
+
+#else
+    #define INVALID_HANDLE_VALUE 1
+#endif
 
 #include "disk.h"
 #include "mainwindow.h"
@@ -48,9 +54,12 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
     clipboard = QApplication::clipboard();
     bMd5Copy->setVisible(false);
     statusbar->showMessage(tr("Waiting for a task."));
+
+#ifdef Q_WS_WIN
     hVolume = INVALID_HANDLE_VALUE;
     hFile = INVALID_HANDLE_VALUE;
     hRawDisk = INVALID_HANDLE_VALUE;
+#endif
     if (QCoreApplication::arguments().count() > 1)
     {
         QString filelocation = QApplication::arguments().at(1);
@@ -83,6 +92,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
 MainWindow::~MainWindow()
 {
+#ifdef Q_WS_WIN
     if (hRawDisk != INVALID_HANDLE_VALUE)
     {
         CloseHandle(hRawDisk);
@@ -103,6 +113,7 @@ MainWindow::~MainWindow()
         delete sectorData;
         sectorData = NULL;
     }
+#endif
 }
 
 void MainWindow::setReadWriteButtonState()
@@ -268,6 +279,7 @@ void MainWindow::on_md5CheckBox_stateChanged()
 
 void MainWindow::on_bWrite_clicked()
 {
+#ifdef Q_WS_WIN
     bool passfail = true;
     if (!leFile->text().isEmpty())
     {
@@ -468,10 +480,13 @@ void MainWindow::on_bWrite_clicked()
         close();
     }
     status = STATUS_IDLE;
+#endif
+
 }
 
 void MainWindow::on_bRead_clicked()
 {
+#ifdef Q_WS_WIN
     QString myFile;
     if (!leFile->text().isEmpty())
     {
@@ -674,12 +689,15 @@ void MainWindow::on_bRead_clicked()
         close();
     }
     status = STATUS_IDLE;
+
+#endif
 }
 
 // getLogicalDrives sets cBoxDevice with any logical drives found, as long
 // as they indicate that they're either removable, or fixed and on USB bus
 void MainWindow::getLogicalDrives()
 {
+#ifdef Q_WS_WIN
     // GetLogicalDrives returns 0 on failure, or a bitmask representing
     // the drives available on the system (bit 0 = A:, bit 1 = B:, etc)
     unsigned long driveMask = GetLogicalDrives();
@@ -705,10 +723,14 @@ void MainWindow::getLogicalDrives()
         cboxDevice->setCurrentIndex(0);
         ++i;
     }
+
+#endif
 }
 
 // support routine for winEvent - returns the drive letter for a given mask
 //   taken from http://support.microsoft.com/kb/163503
+
+#ifdef Q_WS_WIN
 char FirstDriveFromMask (ULONG unitmask)
 {
     char i;
@@ -724,7 +746,6 @@ char FirstDriveFromMask (ULONG unitmask)
 
     return (i + 'A');
 }
-
 // register to receive notifications when USB devices are inserted or removed
 // adapted from http://www.known-issues.net/qt/qt-detect-event-windows.html
 bool MainWindow::winEvent ( MSG * msg, long * result )
@@ -780,6 +801,8 @@ bool MainWindow::winEvent ( MSG * msg, long * result )
     *result = 0; //get rid of obnoxious compiler warning
     return false; // let qt handle the rest
 }
+
+#endif
 
 void MainWindow::updateMd5CopyButton()
 {
